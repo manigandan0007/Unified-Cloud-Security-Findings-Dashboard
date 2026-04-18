@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>Cloud Security &middot; Findings Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path fill='%230078d4' d='M24.5 14.2c-.4-3.5-3.4-6.2-7-6.2-2.9 0-5.4 1.8-6.4 4.4-.3-.1-.7-.1-1-.1-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1h14c2.5 0 4.5-2 4.5-4.5 0-2.4-1.9-4.3-4.1-4.5l0-.3z'/></svg>"/>
+    <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<!-- Success banner -->
+<div class="banner">
+    <div class="left">
+        <span class="check" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        <div class="msg">
+            Successfully signed in as <span class="who" th:text="${name}">User</span>
+            <span class="toast-note" th:if="${email}">&middot; <span th:text="${email}">email</span></span>
+        </div>
+    </div>
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <button type="submit" class="btn-logout" title="Sign out of Microsoft Entra">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Logout
+        </button>
+    </form>
+</div>
+
+<div class="wrap">
+    <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div class="brand-name">Microsoft Entra &middot; Secure Portal</div>
+    </div>
+
+    <div class="card">
+        <div class="hub-header">
+            <div>
+                <h1 id="hubTitle">Cloud Security <span class="muted-h1">&middot; Findings Dashboard</span></h1>
+                <p class="sub" id="hubSubtitle">Pick a provider, enter credentials, and pull live findings.</p>
+            </div>
+            <div class="who-chip">
+                <div class="avatar-sm" th:text="${#strings.substring(name, 0, 1)}">U</div>
+                <div>
+                    <div class="who-n" th:text="${name}">User</div>
+                    <div class="who-e" th:text="${email}">email</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Provider tabs -->
+        <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="aws" role="tab" aria-selected="true">
+                <svg class="tab-logo-svg" viewBox="0 0 100 56" width="26" height="16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <text x="50" y="30" font-family="'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="800" fill="#232F3E" text-anchor="middle" letter-spacing="-1">aws</text>
+                    <path d="M 10 42 C 30 52, 70 52, 90 42 L 86 45 C 68 54, 32 54, 14 45 Z" fill="#FF9900"/>
+                </svg>
+                AWS Security Hub
+            </button>
+            <button class="tab" data-tab="azure" role="tab" aria-selected="false">
+                <span class="tab-logo ms" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+                Microsoft Defender for Cloud
+            </button>
+        </div>
+
+        <!-- ===== AWS PANEL ===== -->
+        <div id="panelAws" class="tab-panel">
+            <form id="credsForm" class="creds" autocomplete="off" onsubmit="return false;">
+                <div class="fields">
+                    <label class="fld"><span>Access Key ID</span>
+                        <input id="accessKey" type="text" placeholder="AKIA..." required/></label>
+                    <label class="fld"><span>Secret Access Key</span>
+                        <input id="secretKey" type="password" placeholder="••••••••••••••••" required/></label>
+                    <label class="fld"><span>Session Token <em>(optional)</em></span>
+                        <input id="sessionToken" type="password" placeholder="For STS temporary credentials"/></label>
+                    <label class="fld"><span>Region</span>
+                        <select id="region">
+                            <option value="us-east-1" selected>us-east-1 (N. Virginia)</option>
+                            <option value="us-east-2">us-east-2 (Ohio)</option>
+                            <option value="us-west-1">us-west-1 (N. California)</option>
+                            <option value="us-west-2">us-west-2 (Oregon)</option>
+                            <option value="ap-south-1">ap-south-1 (Mumbai)</option>
+                            <option value="ap-south-2">ap-south-2 (Hyderabad)</option>
+                            <option value="ap-southeast-1">ap-southeast-1 (Singapore)</option>
+                            <option value="ap-southeast-2">ap-southeast-2 (Sydney)</option>
+                            <option value="ap-northeast-1">ap-northeast-1 (Tokyo)</option>
+                            <option value="eu-west-1">eu-west-1 (Ireland)</option>
+                            <option value="eu-west-2">eu-west-2 (London)</option>
+                            <option value="eu-central-1">eu-central-1 (Frankfurt)</option>
+                            <option value="ca-central-1">ca-central-1 (Canada)</option>
+                            <option value="sa-east-1">sa-east-1 (São Paulo)</option>
+                        </select>
+                    </label>
+                    <label class="fld"><span>Max Results</span>
+                        <input id="maxResults" type="number" min="1" max="1000" value="200"/></label>
+                    <div class="fld fld-actions">
+                        <button id="goBtn" type="submit" class="btn-ms">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            Go
+                        </button>
+                    </div>
+                </div>
+                <p class="warn">
+                    Credentials are sent to this backend only to call <code>securityhub:GetFindings</code> and are not persisted.
+                    Use short-lived STS credentials for anything beyond local testing.
+                </p>
+            </form>
+        </div>
+
+        <!-- ===== AZURE PANEL ===== -->
+        <div id="panelAzure" class="tab-panel" hidden>
+            <form id="azureForm" class="creds" autocomplete="off" onsubmit="return false;">
+                <div class="fields">
+                    <label class="fld"><span>Tenant ID</span>
+                        <input id="azTenantId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required/></label>
+                    <label class="fld"><span>Client ID (App ID)</span>
+                        <input id="azClientId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required/></label>
+                    <label class="fld"><span>Client Secret</span>
+                        <input id="azClientSecret" type="password" placeholder="••••••••••••••••" required/></label>
+                    <label class="fld"><span>Subscription ID</span>
+                        <input id="azSubscriptionId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required/></label>
+                    <label class="fld"><span>Max Results</span>
+                        <input id="azMaxResults" type="number" min="1" max="1000" value="200"/></label>
+                    <div class="fld fld-actions">
+                        <button id="azGoBtn" type="submit" class="btn-ms">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            Go
+                        </button>
+                    </div>
+                </div>
+                <p class="warn">
+                    Uses the <b>client-credentials</b> flow to exchange your service principal secret for an Azure Resource Manager token,
+                    then calls <code>Microsoft.Security/alerts</code>. Service principal needs
+                    <b>Security Reader</b> (or higher) on the subscription.
+                </p>
+            </form>
+            <p class="provider-hint">
+                Create a service principal via <code>az ad sp create-for-rbac --role "Security Reader" --scopes /subscriptions/&lt;sub&gt;</code>
+                and paste the <code>tenant</code>, <code>appId</code>, <code>password</code> values here.
+            </p>
+        </div>
+
+        <!-- Shared dashboard -->
+        <div id="hubStatus" class="hub-status" hidden></div>
+        <div id="hubSummary" class="sev-summary" hidden></div>
+
+        <section id="hubCharts" class="charts-grid" hidden>
+            <div class="chart-card"><h3>Severity Distribution</h3><p class="chart-sub">For the CISO / executive — where is the risk concentrated?</p><canvas id="chartSeverity"></canvas></div>
+            <div class="chart-card"><h3>Workflow Status</h3><p class="chart-sub">For the SecOps lead — triage pipeline health.</p><canvas id="chartWorkflow"></canvas></div>
+            <div class="chart-card"><h3>Compliance Outcome</h3><p class="chart-sub">For the auditor — pass vs. fail posture.</p><canvas id="chartCompliance"></canvas></div>
+            <div class="chart-card"><h3>Findings by Product</h3><p class="chart-sub">For the platform team — which product is surfacing issues.</p><canvas id="chartProducts"></canvas></div>
+            <div class="chart-card"><h3>Findings by Resource Type</h3><p class="chart-sub">For the cloud engineer — what kind of resources are affected.</p><canvas id="chartResourceTypes"></canvas></div>
+            <div class="chart-card"><h3>Age of Findings</h3><p class="chart-sub">For the remediation team — how stale is the backlog.</p><canvas id="chartAge"></canvas></div>
+        </section>
+
+        <section id="hubTables" class="tables-grid" hidden>
+            <div class="tbl-card">
+                <h3>Top Affected Resources</h3>
+                <p class="chart-sub">For the cloud engineer — which resources need attention first.</p>
+                <div class="tbl-wrap">
+                    <table class="tbl" id="tblTopResources">
+                        <thead><tr>
+                            <th>#</th><th>Resource ID</th><th>Type</th>
+                            <th class="t-right">Critical</th><th class="t-right">High</th>
+                            <th class="t-right">Medium</th><th class="t-right">Low</th>
+                            <th class="t-right">Total</th>
+                        </tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tbl-card">
+                <h3>Age Buckets</h3>
+                <p class="chart-sub">Findings grouped by how long they've been around.</p>
+                <div class="tbl-wrap">
+                    <table class="tbl" id="tblAge">
+                        <thead><tr><th>Age</th><th class="t-right">Count</th><th class="t-right">Share</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <div id="hubFilters" class="hub-filters" hidden>
+            <input id="hubSearch" type="search" placeholder="Filter by title, resource, product..." />
+            <select id="sevFilter">
+                <option value="">All severities</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+                <option value="INFORMATIONAL">Informational</option>
+            </select>
+            <span id="hubCount" class="hub-count"></span>
+        </div>
+
+        <div id="hubFindings" class="findings"></div>
+        <div id="hubEmpty" class="hub-empty" hidden>No findings returned for this account/region.</div>
+    </div>
+
+    <p class="foot">
+        &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> Exora &middot; Powered by Spring Security &amp; Microsoft Entra ID
+    </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js"></script>
+<script src="/js/dashboard.js"></script>
+
+</body>
+</html>

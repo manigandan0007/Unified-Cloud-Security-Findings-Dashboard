@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title>Microsoft Entra &middot; Sign in</title>
+    <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path fill='%230078d4' d='M24.5 14.2c-.4-3.5-3.4-6.2-7-6.2-2.9 0-5.4 1.8-6.4 4.4-.3-.1-.7-.1-1-.1-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1h14c2.5 0 4.5-2 4.5-4.5 0-2.4-1.9-4.3-4.1-4.5l0-.3z'/></svg>"/>
+    <link rel="stylesheet" href="/css/app.css"/>
+</head>
+<body>
+
+<!-- Logout success toast -->
+<div class="toast" th:if="${logoutSuccess}">
+    You have been signed out.
+</div>
+
+<div class="wrap">
+    <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div class="brand-name">Microsoft Entra &middot; Secure Portal</div>
+    </div>
+
+    <div class="card">
+        <h1>Sign in to continue</h1>
+        <p class="sub">
+            Use your Microsoft Entra ID work or school account to access the cloud security findings dashboard.
+        </p>
+
+        <div class="login-wrap">
+            <a class="btn-ms" href="/oauth2/authorization/azure">
+                <span class="ms-logo" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+                Sign in with Microsoft
+            </a>
+
+            <div class="features">
+                <div class="feat">
+                    <span class="ft">AWS Security Hub</span>
+                    <span class="fd">Paginated findings with severity, workflow status, compliance and age aggregations.</span>
+                </div>
+                <div class="feat">
+                    <span class="ft">Microsoft Defender for Cloud</span>
+                    <span class="fd">Service-principal-authenticated pull of Azure security alerts across your subscription.</span>
+                </div>
+                <div class="feat">
+                    <span class="ft">Charts for executives</span>
+                    <span class="fd">Severity, workflow, compliance, product &amp; age distributions at a glance.</span>
+                </div>
+                <div class="feat">
+                    <span class="ft">Tables for engineers</span>
+                    <span class="fd">Top affected resources with per-severity breakdown and full triage list.</span>
+                </div>
+            </div>
+
+            <p class="sub" style="margin:0;font-size:13px;">
+                By signing in you agree to your organization&rsquo;s access and usage policies.
+            </p>
+        </div>
+    </div>
+
+    <p class="foot">
+        &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> Exora &middot; Powered by Spring Security &amp; Microsoft Entra ID
+    </p>
+</div>
+
+</body>
+</html>
